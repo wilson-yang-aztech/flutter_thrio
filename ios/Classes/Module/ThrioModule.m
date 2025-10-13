@@ -45,7 +45,7 @@ static NSMutableDictionary *modules;
 
 static ThrioModule *_module;
 
-+ (void)init:(ThrioModule *)module preboot:(BOOL)preboot {
++ (void)initWith:(ThrioModule *)module preboot:(BOOL)preboot {
     NavigatorFlutterEngineFactory.shared.mainEnginePreboot = preboot;
     ThrioModuleContext *moduleContext = [[ThrioModuleContext alloc] init];
     _module = module;
@@ -55,7 +55,7 @@ static ThrioModule *_module;
 
 + (void)initMultiEngine:(ThrioModule *)module {
     NavigatorFlutterEngineFactory.shared.multiEngineEnabled = YES;
-    [ThrioModule init:module preboot:NO];
+    [ThrioModule initWith:module preboot:NO];
 }
 
 + (ThrioModule *_Nonnull)rootModule {

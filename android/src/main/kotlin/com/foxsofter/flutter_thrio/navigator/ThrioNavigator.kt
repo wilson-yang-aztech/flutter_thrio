@@ -140,6 +140,15 @@ object ThrioNavigator {
 
     @JvmStatic
     @JvmOverloads
+    fun replaceFlutter(
+        url: String,
+        index: Int?,
+        newUrl: String,
+        result: NullableIntCallback? = null
+    ) = NavigationController.Replace.replace(url, index, newUrl, result)
+
+    @JvmStatic
+    @JvmOverloads
     fun lastRoute(url: String? = null): PageRoute? = PageRoutes.lastRoute(url)
 
     @JvmStatic

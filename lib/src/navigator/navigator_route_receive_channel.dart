@@ -19,6 +19,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter_thrio/flutter_thrio.dart';
 import '../channel/thrio_channel.dart';
 import '../module/module_anchor.dart';
 import '../module/module_types.dart';
@@ -102,12 +105,22 @@ class NavigatorRouteReceiveChannel {
         }
         final animated = arguments?['animated'] == true;
         final inRootValue = arguments != null ? arguments['inRoot'] : null;
-        final inRoot =
-            (inRootValue != null && inRootValue is bool) && inRootValue;
+        final inRoot = (inRootValue != null && inRootValue is bool) && inRootValue;
+        debugPrint('Thrio pop url = ${routeSettings.url}');
+        if(Platform.isAndroid) {
+          final allRoutes = await ThrioNavigator.allRoutes();
+          final notNestedRoutes = allRoutes.where((e)=> !e.isNested).map((e) => e.url).toList();
+          if(notNestedRoutes.contains(routeSettings.url)) {
+            debugPrint('Thrio pop not nested url = ${routeSettings.url}');
+            return;
+          }
+        }
+
         return await ThrioNavigatorImplement.shared()
                 .navigatorState
                 ?.pop(routeSettings, animated: animated, inRoot: inRoot)
                 .then((value) {
+          debugPrint('Thrio pop url = $value');
               ThrioNavigatorImplement.shared().syncPagePoppedResults();
               return value;
             }) ??
@@ -167,11 +180,15 @@ class NavigatorRouteReceiveChannel {
         if (routeSettings == null) {
           return false;
         }
+
         final newRouteSettings =
             NavigatorRouteSettings.fromNewUrlArguments(arguments);
         if (newRouteSettings == null) {
           return false;
         }
+        print("~~~AzRouter   replace  inRoot");
+        // print("~~~AzRouter   replace  inRoot:$inRoot  routeSettings: ${routeSettings.url}  ${routeSettings.arguments}");
+
         return await ThrioNavigatorImplement.shared()
                 .navigatorState
                 ?.replace(routeSettings, newRouteSettings)

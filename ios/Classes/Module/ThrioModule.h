@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///
 /// Should only be called once when the app startups.
 ///
-+ (void)init:(ThrioModule *)module preboot:(BOOL)preboot;
++ (void)initWith:(ThrioModule *)module preboot:(BOOL)preboot;
 
 + (void)initMultiEngine:(ThrioModule *)module;
 
