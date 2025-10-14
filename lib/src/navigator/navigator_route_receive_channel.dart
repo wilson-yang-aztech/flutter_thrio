@@ -107,13 +107,12 @@ class NavigatorRouteReceiveChannel {
         final inRootValue = arguments != null ? arguments['inRoot'] : null;
         final inRoot = (inRootValue != null && inRootValue is bool) && inRootValue;
         debugPrint('Thrio pop url = ${routeSettings.url}');
-        if(Platform.isAndroid) {
-          final allRoutes = await ThrioNavigator.allRoutes();
-          final notNestedRoutes = allRoutes.where((e)=> !e.isNested).map((e) => e.url).toList();
-          if(notNestedRoutes.contains(routeSettings.url)) {
-            debugPrint('Thrio pop not nested url = ${routeSettings.url}');
-            return;
-          }
+
+        final targetUrl = routeSettings.url;
+        final allFlutterRoutes = ThrioNavigator.allFlutterRoutes().map((e) => e.settings.url).toSet();
+        if(!allFlutterRoutes.contains(targetUrl)) {
+          debugPrint('Thrio pop only pop native url = ${routeSettings.url}');
+          return;
         }
 
         return await ThrioNavigatorImplement.shared()
