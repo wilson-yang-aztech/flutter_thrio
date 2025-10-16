@@ -125,18 +125,21 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             poppedResult: NullableAnyCallback? = null,
             result: NullableIntCallback?,
         ) {
+            Log.d("NavigationController", "Push.push0 routeType->$routeType   $url")
             if (routeType != RouteType.NONE) {
                 result?.invoke(null)
                 return
             }
 
             routeType = RouteType.PUSH
+            Log.d("NavigationController", "Push.push1 routeType->$routeType")
 
             // 获取 lastActivity & lastEntrypoint & lastPageId
             val lastHolder = PageRoutes.lastRouteHolder()
             val lastActivity = lastHolder?.activity?.get() ?: context?.get()
             if (lastActivity == null) {
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "Push.push2 routeType->$routeType")
                 result?.invoke(null)
                 return
             }
@@ -207,6 +210,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
         }
 
         internal fun doPush(activity: Activity, routeSettings: RouteSettings? = null) {
+            Log.d("NavigationController", "Push.doPush0 routeType->$routeType   ${routeSettings?.url}   ${activity.componentName}")
             if (routeType != RouteType.PUSH) {
                 return
             }
@@ -220,6 +224,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
 
             // 开始 push Flutter 页面
             routeType = RouteType.PUSHING
+            Log.d("NavigationController", "Push.doPush1 routeType->$routeType")
 
             // 设置 pageId
             var pageId = activity.intent.getPageId()
@@ -250,6 +255,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                     }
                 }
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "Push.doPush2 routeType->$routeType")
                 result?.invoke(index)
                 result = null
             }
@@ -367,6 +373,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             animated: Boolean = true,
             result: BooleanCallback? = null
         ) {
+            Log.d("NavigationController", "Pop.pop0 routeType->$routeType   $params")
             if (routeType != RouteType.NONE) {
                 result?.invoke(false)
                 return
@@ -377,6 +384,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                 return
             }
             routeType = RouteType.POP
+            Log.d("NavigationController", "Pop.pop1 routeType->$routeType")
 
             var activity = lastHolder.activity?.get() ?: return // 不应该会走到这
             // 如果该 activity 正在被关闭，则对其下的 activity 进行 pop
@@ -384,6 +392,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                 val idx = PageRoutes.routeHolders.indexOf(lastHolder)
                 if (idx < 1) {
                     routeType = RouteType.NONE
+                    Log.d("NavigationController", "Pop.pop2 routeType->$routeType")
                     result?.invoke(false)
                     return
                 }
@@ -392,6 +401,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             }
             if (lastHolder == null) {
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "Pop.pop3 routeType->$routeType")
                 result?.invoke(false)
                 return
             }
@@ -404,10 +414,12 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                     activity.onBackPressed()
                 }
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "Pop.pop4 routeType->$routeType")
                 result?.invoke(true)
             } else {
                 PageRoutes.pop<T>(lastHolder, params, animated) {
                     routeType = RouteType.NONE
+                    Log.d("NavigationController", "Pop.pop5 routeType->$routeType")
                     result?.invoke(it)
                 }
             }
@@ -418,6 +430,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             animated: Boolean = true,
             result: BooleanCallback? = null
         ) {
+            Log.d("NavigationController", "Pop.popFlutter0 routeType->$routeType   $params")
             if (routeType != RouteType.NONE) {
                 result?.invoke(false)
                 return
@@ -428,6 +441,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                 return
             }
             routeType = RouteType.POP
+            Log.d("NavigationController", "Pop.popFlutter1 routeType->$routeType")
 
             val inRoot = lastHolder == PageRoutes.firstRouteHolder
 
@@ -439,10 +453,12 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                     activity.onBackPressed()
                 }
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "Pop.popFlutter2 routeType->$routeType")
                 result?.invoke(true)
             } else {
                 PageRoutes.pop<T>(lastHolder, params, animated) {
                     routeType = RouteType.NONE
+                    Log.d("NavigationController", "Pop.popFlutter3 routeType->$routeType")
                     result?.invoke(it)
                 }
             }
@@ -469,6 +485,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
         private val destroyingHolders by lazy { mutableListOf<PageRouteHolder>() }
 
         fun popTo(url: String, index: Int?, animated: Boolean, result: BooleanCallback? = null) {
+            Log.d("NavigationController", "PopTo.popTo0 routeType->$routeType   $url")
             if (routeType != RouteType.NONE || (index != null && index < 0)) {
                 result?.invoke(false)
                 return
@@ -480,6 +497,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                 return
             }
             routeType = RouteType.POPPING_TO
+            Log.d("NavigationController", "PopTo.popTo1 routeType->$routeType")
 
             poppedToRoute.settings.animated = animated
             val poppedToHolder = PageRoutes.lastRouteHolder(url, index)
@@ -493,8 +511,10 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                     // 顶上不存在其它的 Activity
                     if (poppedToHolders.isEmpty()) {
                         routeType = RouteType.NONE
+                        Log.d("NavigationController", "PopTo.popTo2 routeType->$routeType")
                         result?.invoke(true)
                     } else { // 顶上存在其它的 Activity
+                        Log.d("NavigationController", "PopTo.popTo4 --- routeType->$routeType")
                         this.result = result
                         this.poppedToRoute = poppedToRoute
                         this.poppedToHolder = poppedToHolder
@@ -508,47 +528,55 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                     }
                 } else {
                     routeType = RouteType.NONE
+                    Log.d("NavigationController", "PopTo.popTo3 routeType->$routeType")
                     result?.invoke(false)
                 }
             }
         }
 
         internal fun doPopTo(activity: Activity) {
+            Log.d("NavigationController", "PopTo.doPopTo0 routeType->$routeType   ${activity.componentName}")
             if (routeType != RouteType.POPPING_TO) {
                 return
             }
             val pageId = activity.intent.getPageId()
             if (pageId == NAVIGATION_ROUTE_PAGE_ID_NONE) {
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "PopTo.doPopTo1 routeType->$routeType")
                 result?.invoke(false)
                 result = null
                 return
             }
             val index = poppedToHolders.indexOfLast { it.pageId == pageId }
-            if (index == -1) {
+            if (index == -1 && poppingToHolders.isEmpty()) {
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "PopTo.doPopTo2 routeType->$routeType")
                 result?.invoke(false)
                 result = null
                 return
             }
-            if (poppedToHolder != null && poppedToHolder!!.pageId == pageId) {
+            if (poppedToHolder != null && poppedToHolder!!.pageId == pageId && poppingToHolders.isEmpty()) {
                 poppedToHolder?.activity?.get()?.let {
                     poppedToHolder = null
                 }
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "PopTo.doPopTo3 routeType->$routeType")
                 result?.invoke(false)
                 result = null
                 return
             }
-            val holder = poppedToHolders[index]
-            if (!poppingToHolders.contains(holder)) {
-                poppedToHolders.removeAt(index)
-                poppingToHolders.add(holder)
-                activity.finish()
+            if(index != -1) {
+                val holder = poppedToHolders[index]
+                if (!poppingToHolders.contains(holder)) {
+                    poppedToHolders.removeAt(index)
+                    poppingToHolders.add(holder)
+                    activity.finish()
+                }
             }
         }
 
         internal fun didPopTo(activity: Activity) {
+            Log.d("NavigationController", "PopTo.didPopTo0 routeType->$routeType   ${activity.componentName}")
             if (routeType != RouteType.POPPING_TO) {
                 return
             }
@@ -560,6 +588,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                     destroyingHolders.count() == poppedToHolderCount
                 ) {
                     routeType = RouteType.NONE
+                    Log.d("NavigationController", "PopTo.didPopTo1 routeType->$routeType")
                     result?.invoke(true)
                     result = null
                     poppedToRoute = null
@@ -579,15 +608,18 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             animated: Boolean = true,
             result: BooleanCallback? = null
         ) {
+            Log.d("NavigationController", "Remove.remove0 routeType->$routeType   $url")
             if (routeType != RouteType.NONE) {
                 result?.invoke(false)
                 return
             }
 
             routeType = RouteType.REMOVING
+            Log.d("NavigationController", "Remove.remove1 routeType->$routeType")
 
             PageRoutes.remove(url, index, animated) {
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "Remove.remove1 routeType->$routeType")
                 result?.invoke(it)
             }
         }
@@ -612,17 +644,20 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             newUrl: String,
             result: NullableIntCallback? = null
         ) {
+            Log.d("NavigationController", "Replace.replace0 routeType->$routeType   url:$url   newUrl:$newUrl")
             if (routeType != RouteType.NONE) {
                 result?.invoke(null)
                 return
             }
             routeType = RouteType.REPLACE
+            Log.d("NavigationController", "Replace.replace1 routeType->$routeType")
 
             val lastNewRoute = PageRoutes.lastRoute(newUrl)
             val newIndex = (lastNewRoute?.settings?.index?.plus(1)) ?: 1
             // 目前只实现 Flutter 页面之间的 replace，可以不考虑 Activity 被杀掉的情况
             PageRoutes.replace(url, index, newUrl, newIndex) {
                 routeType = RouteType.NONE
+                Log.d("NavigationController", "Replace.replace2 routeType->$routeType")
                 result?.invoke(it)
             }
         }
