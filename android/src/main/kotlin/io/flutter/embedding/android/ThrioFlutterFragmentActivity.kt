@@ -58,6 +58,14 @@ open class ThrioFlutterFragmentActivity : FlutterFragmentActivity(), ThrioFlutte
 
     override fun onBackPressed() = activityDelegate.onBackPressed()
 
+    fun addBackPressedDispatcherCallback() {
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                activityDelegate.onBackPressed()
+            }
+        })
+    }
+
     override fun onResume() {
         super.onResume()
         Log.v(TAG, "onResume ${hashCode()}")
